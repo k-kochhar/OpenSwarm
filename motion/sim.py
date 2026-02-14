@@ -73,6 +73,10 @@ def main():
     # Initialize controllers for both robots
     autonomous_controller1 = AutonomousController(path1, robot1.x, robot1.y)
     autonomous_controller2 = AutonomousController(path2, robot2.x, robot2.y)
+    
+    # Track current commands
+    current_command1 = "L:0;R:0"
+    current_command2 = "L:0;R:0"
 
     # Run simulation loop
     running = True
@@ -96,13 +100,16 @@ def main():
                     # Reset controllers
                     autonomous_controller1.reset(robot1.x, robot1.y)
                     autonomous_controller2.reset(robot2.x, robot2.y)
+                    # Reset commands
+                    current_command1 = "L:0;R:0"
+                    current_command2 = "L:0;R:0"
         
-        # Update both robots in autonomous mode
-        left1, right1 = autonomous_controller1.compute_wheel_speeds(robot1)
-        robot1.set_wheels(left1, right1)
+        # Update both robots in autonomous mode using commands
+        current_command1 = autonomous_controller1.compute_command(robot1)
+        robot1.execute_command(current_command1)
         
-        left2, right2 = autonomous_controller2.compute_wheel_speeds(robot2)
-        robot2.set_wheels(left2, right2)
+        current_command2 = autonomous_controller2.compute_command(robot2)
+        robot2.execute_command(current_command2)
         
         # Update both robots
         robot1.update(WINDOW_WIDTH, WINDOW_HEIGHT)
@@ -140,6 +147,20 @@ def main():
             text_surface = font.render(line, True, (255, 255, 255))
             screen.blit(text_surface, (10, y_offset))
             y_offset += 20
+        
+        # Draw command bar at bottom
+        command_bar_height = 50
+        command_bar_y = WINDOW_HEIGHT - command_bar_height
+        pygame.draw.rect(screen, (0, 0, 0), (0, command_bar_y, WINDOW_WIDTH, command_bar_height))
+        
+        # Draw commands vertically on the left
+        command_y = command_bar_y + 5
+        command1_surface = font.render(f"Robot 1: {current_command1}", True, (255, 255, 255))
+        screen.blit(command1_surface, (10, command_y))
+        
+        command_y += 22
+        command2_surface = font.render(f"Robot 2: {current_command2}", True, (255, 255, 255))
+        screen.blit(command2_surface, (10, command_y))
         
         pygame.display.flip()
         clock.tick(FPS)

@@ -1,3 +1,4 @@
+from motion_controller import parse_command
 import pygame
 import math
 import numpy as np
@@ -59,6 +60,11 @@ class Robot:
         """Set wheel speeds (-100, 0, or 100)"""
         self.left_wheel = left
         self.right_wheel = right
+    
+    def execute_command(self, command_string):
+        """Execute a command string to control the robot"""
+        left, right = parse_command(command_string)
+        self.set_wheels(left, right)
     
     def update(self, window_width, window_height):
         """Update robot position based on differential drive model"""

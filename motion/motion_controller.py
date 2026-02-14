@@ -1,23 +1,63 @@
 import math
 
-class ManualController:
-    """Manual control via keyboard input"""
+
+def parse_command(command_string):
+    """
+    Parse a command string and return left and right wheel speeds.
     
-    def __init__(self):
-        pass
+    Supported formats:
+    - Simple: "F", "L", "R", "S" (Forward, Left, Right, Stop)
+    - Detailed: "L:50;R:40" (Left wheel at 50, Right wheel at 40)
     
-    def compute_wheel_speeds(self, robot, keys):
-        """Compute wheel speeds based on keyboard input"""
-        if keys['forward']:
-            return 100, 100
-        elif keys['left']:
-            return -100, 100
-        elif keys['right']:
-            return 100, -100
-        elif keys['stop']:
-            return 0, 0
-        else:
-            return robot.left_wheel, robot.right_wheel
+    Returns:
+        tuple: (left_speed, right_speed) in range [-100, 100]
+    """
+    command_string = command_string.strip().upper()
+    
+    # Check for detailed format (L:50;R:40)
+    if ':' in command_string and ';' in command_string:
+        parts = command_string.split(';')
+        left_speed = 0
+        right_speed = 0
+        
+        for part in parts:
+            if ':' in part:
+                key, value = part.split(':')
+                key = key.strip()
+                value = int(value.strip())
+                
+                if key == 'L':
+                    left_speed = value
+                elif key == 'R':
+                    right_speed = value
+        
+        return left_speed, right_speed
+    
+    # Simple format
+    if command_string == 'F':
+        return 100, 100
+    elif command_string == 'L':
+        return -100, 100
+    elif command_string == 'R':
+        return 100, -100
+    elif command_string == 'S':
+        return 0, 0
+    else:
+        return 0, 0
+
+
+def generate_command(left_speed, right_speed):
+    """
+    Generate a command string from wheel speeds.
+    
+    Args:
+        left_speed: Left wheel speed [-100, 100]
+        right_speed: Right wheel speed [-100, 100]
+    
+    Returns:
+        str: Command string in format "L:50;R:40"
+    """
+    return f"L:{int(left_speed)};R:{int(right_speed)}"
 
 
 class AutonomousController:
@@ -95,6 +135,11 @@ class AutonomousController:
         else:
             # Aligned: drive straight forward
             return 100, 100
+    
+    def compute_command(self, robot):
+        """Generate command string for robot navigation"""
+        left_speed, right_speed = self.compute_wheel_speeds(robot)
+        return generate_command(left_speed, right_speed)
     
     def get_current_waypoint(self):
         """Get the current target waypoint"""
