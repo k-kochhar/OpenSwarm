@@ -1,0 +1,46 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/27.0.9 Chrome/134.0.6998.205 Electron/35.4.0 Safari/537.36" version="27.0.9">
+  <diagram name="Page-1" id="-32mwbs8Mb9mymBjOc7R">
+    <mxGraphModel dx="1042" dy="626" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="h2dyUcmk27v1HdpwlE9T-1" value="1" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="250" y="70" width="120" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="h2dyUcmk27v1HdpwlE9T-2" value="91 to180 - reverse&lt;div&gt;90-87 is mid&lt;/div&gt;&lt;div&gt;86 to 0 forward&lt;br&gt;pin 6&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="365" y="100" width="120" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="h2dyUcmk27v1HdpwlE9T-3" value="USB" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="285" y="40" width="50" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="h2dyUcmk27v1HdpwlE9T-4" value="93 to180 - forward&lt;div&gt;89-92&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp;is mid&lt;/span&gt;&lt;/div&gt;&lt;div&gt;88 to 0 backward&lt;br&gt;pin 3&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="130" y="100" width="120" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="h2dyUcmk27v1HdpwlE9T-5" value="2" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="250" y="290" width="120" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="h2dyUcmk27v1HdpwlE9T-6" value="94 to180 - reverse&lt;div&gt;87-93 is mid&lt;/div&gt;&lt;div&gt;86 to 0 forward&lt;br&gt;pin 6&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="365" y="320" width="120" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="h2dyUcmk27v1HdpwlE9T-7" value="USB" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="285" y="260" width="50" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="h2dyUcmk27v1HdpwlE9T-8" value="94 to180 - forward&lt;div&gt;87-93 is mid&lt;/div&gt;&lt;div&gt;86 to 0 backward&lt;br&gt;pin 3&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="130" y="320" width="120" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="h2dyUcmk27v1HdpwlE9T-9" value="3" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="252.5" y="510" width="120" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="h2dyUcmk27v1HdpwlE9T-10" value="93 to180 - reverse&lt;div&gt;87-92 is mid&lt;/div&gt;&lt;div&gt;86 to 0 forward&lt;br&gt;pin 6&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="367.5" y="540" width="120" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="h2dyUcmk27v1HdpwlE9T-11" value="USB" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="287.5" y="480" width="50" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="h2dyUcmk27v1HdpwlE9T-12" value="94 to180 - forward&lt;div&gt;89-93 is mid&lt;/div&gt;&lt;div&gt;87 to 0 backward&lt;br&gt;pin 3&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="132.5" y="540" width="120" height="70" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
