@@ -17,7 +17,28 @@ sys.path.insert(0, str(ROBOT_SRC))
 HIVE_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(HIVE_DIR))
 
+# Add move_world for neural pathfinder
+MOVE_WORLD_DIR = HIVE_DIR / "move_world"
+sys.path.insert(0, str(MOVE_WORLD_DIR))
+
 from utils import PathFollower, RobotClient
+from pathfinder import NeuralPathfinder
+
+# Lazy-loaded neural pathfinder (singleton)
+_neural_pf = None
+_neural_pf_lock = threading.Lock()
+_CHECKPOINT = MOVE_WORLD_DIR / "checkpoints" / "best_model.pt"
+
+
+def _get_neural_pathfinder():
+    """Get or create the NeuralPathfinder (loaded once, reused)."""
+    global _neural_pf
+    if _neural_pf is None:
+        with _neural_pf_lock:
+            if _neural_pf is None:
+                _neural_pf = NeuralPathfinder(str(_CHECKPOINT))
+                print(f"[pathfind] Neural heuristic loaded on {_neural_pf.device}")
+    return _neural_pf
 
 BOT_CLEAR_RADIUS = 4  # cells around each bot kept obstacle-free
 
@@ -271,9 +292,60 @@ def _detect_world_state():
 
 def _generate_waypoints(start, target, step_size=40):
     """
-    Generate intermediate waypoints in a straight line from start to target.
-    This gives PathFollower enough points to track smoothly.
+    Generate waypoints from start to target using neural heuristic A*
+    on the color-detected obstacle grid. Falls back to straight-line
+    if no grid or no path found.
+
+    start/target: [x, y] pixel coordinates.
+    Returns: list of [x, y] pixel waypoints.
     """
+    frame_w, frame_h = _get_frame_size()
+
+    # Try neural A* on the obstacle grid
+    try:
+        world = _detect_world_state()
+        grid = np.array(world["matrix"], dtype=np.int32)
+
+        # Convert obstacle grid to binary (0=free, 1=blocked)
+        # Our grid uses 0=free, 1=bot, 2=obstacle — neural model expects 0/1
+        binary_grid = (grid == CELL_OBSTACLE).astype(np.int32)
+
+        # Clear start and goal cells
+        s_col = int(start[0] / frame_w * FULL_GRID)
+        s_row = int(start[1] / frame_h * FULL_GRID)
+        t_col = int(target[0] / frame_w * FULL_GRID)
+        t_row = int(target[1] / frame_h * FULL_GRID)
+        s_row = max(0, min(s_row, FULL_GRID - 1))
+        s_col = max(0, min(s_col, FULL_GRID - 1))
+        t_row = max(0, min(t_row, FULL_GRID - 1))
+        t_col = max(0, min(t_col, FULL_GRID - 1))
+        binary_grid[s_row, s_col] = 0
+        binary_grid[t_row, t_col] = 0
+
+        pf = _get_neural_pathfinder()
+        cell_w = frame_w / FULL_GRID
+        cell_h = frame_h / FULL_GRID
+
+        pixel_path = pf.find_path_pixel(
+            binary_grid,
+            start_xy=(start[0], start[1]),
+            goal_xy=(target[0], target[1]),
+            grid_origin=(0, 0),
+            cell_size=min(cell_w, cell_h),
+        )
+
+        if pixel_path:
+            # Convert tuples to lists, skip start
+            waypoints = [[p[0], p[1]] for p in pixel_path[1:]]
+            waypoints[-1] = [float(target[0]), float(target[1])]
+            print(f"[pathfind] Neural A* path: {len(waypoints)} waypoints")
+            return waypoints
+
+        print("[pathfind] Neural A* found no path — falling back to straight line")
+    except Exception as e:
+        print(f"[pathfind] Neural pathfinder unavailable ({e}) — using straight line")
+
+    # Fallback: straight-line waypoints
     sx, sy = start
     tx, ty = target
     dx, dy = tx - sx, ty - sy
@@ -287,8 +359,6 @@ def _generate_waypoints(start, target, step_size=40):
     for i in range(1, n_steps + 1):
         frac = i / n_steps
         path.append([sx + dx * frac, sy + dy * frac])
-
-    # Ensure exact target is the last point
     path[-1] = [tx, ty]
     return path
 
@@ -486,20 +556,34 @@ def push_and_exit(bot_id=0):
         return f"Bot {bot_id} not detected — cannot push_and_exit"
 
     bx, by = info["center"]
+    angle = info["orientation_rad"]
     frame_w, frame_h = _get_frame_size()
 
-    # Find nearest boundary point (top/bottom/left/right edge)
-    candidates = [
-        (bx, 0),            # top
-        (bx, frame_h),      # bottom
-        (0, by),             # left
-        (frame_w, by),       # right
-    ]
-    nearest = min(candidates, key=lambda p: math.hypot(p[0] - bx, p[1] - by))
-    target = [float(nearest[0]), float(nearest[1])]
+    # Drive straight in the bot's current facing direction until hitting a boundary
+    dx = math.cos(angle)
+    dy = math.sin(angle)
 
-    # Straight-line waypoints to boundary
-    path = _generate_waypoints([bx, by], target)
+    # Ray-march to frame edge
+    t_max = max(frame_w, frame_h) * 2
+    for step in range(1, int(t_max)):
+        ex = bx + dx * step
+        ey = by + dy * step
+        if ex <= 0 or ex >= frame_w or ey <= 0 or ey >= frame_h:
+            target = [float(max(0, min(ex, frame_w))), float(max(0, min(ey, frame_h)))]
+            break
+    else:
+        target = [float(bx + dx * t_max), float(by + dy * t_max)]
+
+    # Straight-line waypoints (no pathfinding — push through obstacles)
+    sx, sy = bx, by
+    tdx, tdy = target[0] - sx, target[1] - sy
+    dist = math.sqrt(tdx**2 + tdy**2)
+    n_steps = max(1, int(dist / 40))
+    path = []
+    for i in range(1, n_steps + 1):
+        frac = i / n_steps
+        path.append([sx + tdx * frac, sy + tdy * frac])
+    path[-1] = target
 
     # Update path.json
     with _path_json_lock:

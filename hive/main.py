@@ -156,6 +156,11 @@ def _run_bot_sequence(bot_id, calls):
         if "bot" in params:
             params["bot_id"] = params.pop("bot")
 
+        # Only pass bot_id if the function accepts it
+        sig = inspect.signature(fn)
+        if "bot_id" not in sig.parameters and "bot_id" in params:
+            params.pop("bot_id")
+
         print(f"[exec] Bot {bot_id}: {fn_name}({params})")
         try:
             result = fn(**params)

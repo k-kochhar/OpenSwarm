@@ -1,1 +1,1 @@
-{"6": {"active": true, "waypoint_idx": 1, "device_id": "ESP3"}}
+{"6": {"active": false, "waypoint_idx": 4, "device_id": "ESP3"}, "3": {"active": true, "waypoint_idx": 19, "device_id": "ESP2"}, "0": {"active": false, "waypoint_idx": 30, "device_id": "ESP1"}}
