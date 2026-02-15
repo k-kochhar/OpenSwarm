@@ -22,10 +22,10 @@ async def main():
         print("Not connected")
     
     last_command_time = time.time()
-    command_interval = 0.1
+    command_interval = 0.5
     is_rotating = False
     rotation_end_time = 0
-    post_rotation_wait_cycles = 0
+    post_rotation_wait_until = 0
     
     try:
         while True:
@@ -58,23 +58,40 @@ async def main():
                 
                 # Check if we're in the middle of a rotation
                 if is_rotating and current_time < rotation_end_time:
-                    pass
+                    # Check if we've reached the waypoint during rotation
+                    if target_idx is not None and target_idx < len(path):
+                        target_x, target_y = path[target_idx]
+                        dist_to_target = ((target_x - robot_x)**2 + (target_y - robot_y)**2)**0.5
+                        
+                        # If we've overshot and reached the waypoint, stop immediately
+                        if dist_to_target < 50:  # waypoint_threshold
+                            if connected:
+                                await robot.send_command("S")
+                            is_rotating = False
+                            post_rotation_wait_until = current_time + (command_interval * 2)
+
+                    # Otherwise continue rotating without sending commands
 
                 elif is_rotating and current_time >= rotation_end_time:
-                    # Rotation finished
+                    # Rotation time elapsed
                     is_rotating = False
-
-                    # Pause for a bit
-                    post_rotation_wait_cycles = 2
+                    
+                    # Send stop and wait before evaluating next move
                     if connected:
                         await robot.send_command("S")
+                    post_rotation_wait_until = current_time + (command_interval * 2)
 
-                # Reduce cycles
-                elif post_rotation_wait_cycles > 0:
-                    post_rotation_wait_cycles -= 1
+                # Waiting after rotation before determining next move
+                elif post_rotation_wait_until > 0 and current_time < post_rotation_wait_until:
+                    # Robot stays stopped, don't send new commands
+                    pass
 
-                # Normal operation
+                # Normal operation - can calculate and send commands
                 else:
+                    # Clear wait timer if it was set
+                    if post_rotation_wait_until > 0:
+                        post_rotation_wait_until = 0
+                    
                     current_command, rotation_time = path_follower.get_command(robot_x, robot_y, robot_angle_rad)
                     
                     # Send command based on interval
